@@ -1,0 +1,37 @@
+package com.neo.game.character.infrastructure.web.dto;
+
+import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public class CreateCharacterRequest {
+    @NotBlank(message = "Character name cannot be blank")
+    private String name;
+
+    @NotNull(message = "Job cannot be null")
+    private Job job;
+
+    public CreateCharacterRequest() {
+    }
+
+    public CreateCharacterRequest(String name, Job job) {
+        this.name = name;
+        this.job = job;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
+}
