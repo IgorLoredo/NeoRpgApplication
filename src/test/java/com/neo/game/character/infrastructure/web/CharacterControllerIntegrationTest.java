@@ -1,24 +1,33 @@
 package com.neo.game.character.infrastructure.web;
 
-import com.neo.game.character.domain.model.enums.Job;
 import com.neo.game.GameCharacterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.context.WebApplicationContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
+import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(classes = GameCharacterApplication.class)
-@AutoConfigureMockMvc
 public class CharacterControllerIntegrationTest {
 
     @Autowired
+    private WebApplicationContext wac;
+
     private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    }
 
     @Test
     public void testCreateCharacterSuccess() throws Exception {
@@ -60,17 +69,16 @@ public class CharacterControllerIntegrationTest {
         // Criar um personagem primeiro
         String createRequestBody = "{\"name\":\"Legolas\",\"job\":\"ROGUE\"}";
         
-        String response = mockMvc.perform(post("/api/v1/characters")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(createRequestBody))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+    String response = mockMvc.perform(post("/api/v1/characters")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(createRequestBody))
+        .andExpect(status().isCreated())
+        .andReturn()
+        .getResponse()
+        .getContentAsString();
 
-        // Extrair ID (simplificado - em produção usar JsonPath)
-        String characterId = response.substring(response.indexOf("\"id\":\"") + 6);
-        characterId = characterId.substring(0, characterId.indexOf("\""));
+    // Extract ID using JsonPath
+    String characterId = JsonPath.read(response, "$.data.id");
 
         // Buscar o personagem
         mockMvc.perform(get("/api/v1/characters/" + characterId))

@@ -1,16 +1,13 @@
 package com.neo.game.shared;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-@ControllerAdvice
+/**
+ * Legacy/simple exception handler kept for reference.
+ * The active GlobalExceptionHandler lives in
+ * com.neo.game.shared.exception.GlobalExceptionHandler and is
+ * richer (validation handling, structured ErrorResponse). This
+ * class is intentionally NOT a Spring component to avoid duplicate
+ * bean registration.
+ */
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAll(Exception ex) {
-        ApiError error = new ApiError(ex.getMessage() == null ? "Unexpected error" : ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
+    // intentionally left non-annotated
 }

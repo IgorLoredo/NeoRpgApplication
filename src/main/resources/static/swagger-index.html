@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Swagger Index</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f4f4f4; text-align: left; }
+    tr:hover { background: #f9f9f9; }
+    .meta { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <h1>API Routes (Swagger Index)</h1>
+  <div class="meta">
+    <a href="/swagger-ui/index.html" target="_blank">Open Swagger UI</a>
+    &nbsp;|&nbsp;
+    <a href="/v3/api-docs" target="_blank">Open OpenAPI JSON (/v3/api-docs)</a>
+  </div>
+
+  <div id="loading">Loading routes…</div>
+  <table id="routes" style="display:none;">
+    <thead>
+      <tr>
+        <th>Methods</th>
+        <th>Path</th>
+        <th>Controller</th>
+        <th>Handler</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function render(routes) {
+      const tbody = document.querySelector('#routes tbody');
+      routes.forEach(r => {
+        const tr = document.createElement('tr');
+        const methodsTd = document.createElement('td'); methodsTd.textContent = r.methods; tr.appendChild(methodsTd);
+        const pathTd = document.createElement('td');
+        const a = document.createElement('a');
+        a.href = '#'; a.textContent = r.path; a.onclick = (e) => { e.preventDefault(); alert('Path: ' + r.path + '\nMethods: ' + r.methods); };
+        pathTd.appendChild(a); tr.appendChild(pathTd);
+        const ctrlTd = document.createElement('td'); ctrlTd.textContent = r.controller; tr.appendChild(ctrlTd);
+        const handlerTd = document.createElement('td'); handlerTd.textContent = r.handler; tr.appendChild(handlerTd);
+        tbody.appendChild(tr);
+      });
+    }
+
+    fetch('/swagger/index')
+      .then(r => r.json())
+      .then(list => {
+        document.getElementById('loading').style.display = 'none';
+        if (!Array.isArray(list) || list.length === 0) {
+          document.getElementById('loading').textContent = 'No routes found.';
+          return;
+        }
+        render(list);
+        document.getElementById('routes').style.display = '';
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('loading').textContent = 'Failed to load routes. See console for details.';
+      });
+  </script>
+</body>
+</html>
