@@ -1,7 +1,7 @@
 package com.neo.game.character.domain;
 
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.Health;
-import com.neo.game.character.infrastructure.web.domain.model.exceptions.DomainException;
+import com.neo.game.domain.model.valueobjects.Health;
+import com.neo.game.domain.model.exceptions.DomainException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

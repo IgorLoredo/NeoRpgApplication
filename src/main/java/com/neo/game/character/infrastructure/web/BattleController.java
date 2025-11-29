@@ -3,8 +3,9 @@ package com.neo.game.character.infrastructure.web;
 import com.neo.game.character.application.dto.command.BattleCommand;
 import com.neo.game.character.application.dto.query.BattleResultResponse;
 import com.neo.game.character.application.ports.in.BattleUseCase;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.valueobjects.CharacterId;
 import com.neo.game.character.infrastructure.web.dto.ApiResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +36,7 @@ public class BattleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Requisição inválida",
             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
+    @RateLimiter(name = "battle-rate-limiter")
     public ResponseEntity<ApiResponse<BattleResultResponse>> executeBattle(
             @RequestParam @NotBlank(message = "Attacker ID cannot be blank") String attackerId,
             @RequestParam @NotBlank(message = "Defender ID cannot be blank") String defenderId) {

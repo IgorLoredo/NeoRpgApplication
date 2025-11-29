@@ -1,8 +1,8 @@
 package com.neo.game.character.infrastructure.persistence;
 
-import com.neo.game.character.infrastructure.web.domain.model.Character;
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.Character;
+import com.neo.game.domain.model.enums.Job;
+import com.neo.game.domain.model.valueobjects.CharacterId;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

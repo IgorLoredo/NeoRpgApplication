@@ -1,7 +1,7 @@
 package com.neo.game.character.domain;
 
-import com.neo.game.character.infrastructure.web.domain.model.Character;
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import com.neo.game.domain.model.Character;
+import com.neo.game.domain.model.enums.Job;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

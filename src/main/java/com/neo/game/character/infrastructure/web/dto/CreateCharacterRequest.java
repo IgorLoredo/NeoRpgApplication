@@ -1,6 +1,6 @@
 package com.neo.game.character.infrastructure.web.dto;
 
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import com.neo.game.domain.model.enums.Job;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

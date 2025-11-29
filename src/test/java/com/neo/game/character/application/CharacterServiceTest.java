@@ -4,7 +4,8 @@ import com.neo.game.character.application.dto.command.CreateCharacterCommand;
 import com.neo.game.character.application.dto.query.CharacterResponse;
 import com.neo.game.character.application.service.CharacterService;
 import com.neo.game.character.infrastructure.persistence.InMemoryCharacterRepository;
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import com.neo.game.domain.model.enums.Job;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ public class CharacterServiceTest {
 
     @BeforeEach
     public void setUp() {
-        characterService = new CharacterService(new InMemoryCharacterRepository());
+        characterService = new CharacterService(new InMemoryCharacterRepository(), new SimpleMeterRegistry());
     }
 
     @Test

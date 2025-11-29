@@ -7,8 +7,11 @@ import com.neo.game.character.application.dto.query.CharacterSummaryResponse;
 import com.neo.game.character.application.mapper.CharacterMapper;
 import com.neo.game.character.application.ports.in.CharacterUseCase;
 import com.neo.game.character.application.ports.out.CharacterRepositoryPort;
-import com.neo.game.character.infrastructure.web.domain.model.Character;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.Character;
+import com.neo.game.domain.model.valueobjects.CharacterId;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +25,17 @@ public class CharacterService implements CharacterUseCase {
     private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z_]{4,15}$");
 
     private final CharacterRepositoryPort repository;
+    private final Counter createdCounter;
+    private final Counter validationFailuresCounter;
 
-    public CharacterService(CharacterRepositoryPort repository) {
+    public CharacterService(CharacterRepositoryPort repository, MeterRegistry meterRegistry) {
         this.repository = repository;
+        this.createdCounter = meterRegistry.counter("characters.created.count");
+        this.validationFailuresCounter = meterRegistry.counter("characters.validation.failures");
     }
 
     @Override
+    @Retry(name = "character-service")
     public CharacterResponse createCharacter(CreateCharacterCommand command) {
         logger.info("Creating character: name={}, job={}", command.getName(), command.getJob());
         validateCreate(command);
@@ -35,10 +43,12 @@ public class CharacterService implements CharacterUseCase {
         Character character = Character.create(command.getName(), command.getJob());
         Character saved = repository.save(character);
         logger.debug("Character persisted: id={}, job={}, hp={}", saved.getId(), saved.getJob(), saved.getHealth());
+        createdCounter.increment();
         return CharacterMapper.toResponse(saved);
     }
 
     @Override
+    @Retry(name = "character-service")
     public CharacterResponse getCharacterById(String id) {
         logger.info("Fetching character by id={}", id);
         CharacterId characterId = new CharacterId(UUID.fromString(id));
@@ -67,13 +77,16 @@ public class CharacterService implements CharacterUseCase {
         String name = command.getName();
         if (name == null || name.isBlank()) {
             logger.warn("Validation failed: empty name");
+            validationFailuresCounter.increment();
             throw new IllegalArgumentException("Character name cannot be empty");
         }
         if (!NAME_PATTERN.matcher(name).matches()) {
+            validationFailuresCounter.increment();
             throw new IllegalArgumentException("Name must be 4-15 chars, letters or underscores only");
         }
         if (command.getJob() == null) {
             logger.warn("Validation failed: null job");
+            validationFailuresCounter.increment();
             throw new IllegalArgumentException("Job must be one of WARRIOR, THIEF or MAGE");
         }
     }

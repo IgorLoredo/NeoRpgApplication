@@ -1,7 +1,7 @@
 package com.neo.game.character.application.ports.out;
 
-import com.neo.game.character.infrastructure.web.domain.model.Character;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.Character;
+import com.neo.game.domain.model.valueobjects.CharacterId;
 
 import java.util.List;
 import java.util.Optional;

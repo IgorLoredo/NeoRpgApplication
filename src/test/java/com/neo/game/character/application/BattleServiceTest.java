@@ -6,8 +6,10 @@ import com.neo.game.character.application.dto.query.BattleResultResponse;
 import com.neo.game.character.application.service.BattleService;
 import com.neo.game.character.application.service.CharacterService;
 import com.neo.game.character.infrastructure.persistence.InMemoryCharacterRepository;
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.enums.Job;
+import com.neo.game.domain.model.valueobjects.CharacterId;
+import com.neo.game.shared.random.RandomProvider;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +25,9 @@ class BattleServiceTest {
     @BeforeEach
     void setUp() {
         InMemoryCharacterRepository repo = new InMemoryCharacterRepository();
-        characterService = new CharacterService(repo);
-        battleService = new BattleService(repo);
+        var registry = new SimpleMeterRegistry();
+        characterService = new CharacterService(repo, registry);
+        battleService = new BattleService(repo, fixed(5), registry);
     }
 
     @Test
@@ -41,5 +44,9 @@ class BattleServiceTest {
         assertNotNull(result.getLoserName());
         assertTrue(result.getWinnerRemainingHp() >= 0);
         assertFalse(result.getLog().isEmpty());
+    }
+
+    private RandomProvider fixed(int value) {
+        return boundInclusive -> Math.min(boundInclusive, value);
     }
 }
