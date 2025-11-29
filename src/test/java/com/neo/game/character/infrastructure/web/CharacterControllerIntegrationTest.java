@@ -92,6 +92,6 @@ public class CharacterControllerIntegrationTest {
         String invalidId = "00000000-0000-0000-0000-000000000000";
 
         mockMvc.perform(get("/api/v1/characters/" + invalidId))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

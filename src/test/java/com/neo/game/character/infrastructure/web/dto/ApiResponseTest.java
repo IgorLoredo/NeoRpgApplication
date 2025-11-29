@@ -21,4 +21,12 @@ class ApiResponseTest {
         assertNull(response.getData());
         assertEquals("fail", response.getMessage());
     }
+
+    @Test
+    void errorShouldAllowData() {
+        ApiResponse<String> response = ApiResponse.error("details", "fail");
+        assertFalse(response.isSuccess());
+        assertEquals("details", response.getData());
+        assertEquals("fail", response.getMessage());
+    }
 }
