@@ -1,5 +1,7 @@
 package com.neo.game.character.infrastructure.config;
 
+import com.neo.game.character.application.ports.in.BattleUseCase;
+import com.neo.game.character.application.ports.in.CharacterUseCase;
 import com.neo.game.character.application.ports.out.CharacterRepositoryPort;
 import com.neo.game.character.application.service.BattleService;
 import com.neo.game.character.application.service.CharacterService;
@@ -16,12 +18,12 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public CharacterService characterService(CharacterRepositoryPort repository) {
+    public CharacterUseCase characterService(CharacterRepositoryPort repository) {
         return new CharacterService(repository);
     }
 
     @Bean
-    public BattleService battleService(CharacterRepositoryPort repository) {
+    public BattleUseCase battleService(CharacterRepositoryPort repository) {
         return new BattleService(repository);
     }
 }

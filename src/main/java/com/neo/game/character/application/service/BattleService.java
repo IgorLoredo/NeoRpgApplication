@@ -6,8 +6,14 @@ import com.neo.game.character.application.ports.in.BattleUseCase;
 import com.neo.game.character.application.ports.out.CharacterRepositoryPort;
 import com.neo.game.character.infrastructure.web.domain.model.Character;
 import com.neo.game.character.infrastructure.web.domain.model.valueobjects.Health;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BattleService implements BattleUseCase {
+    private static final Logger logger = LoggerFactory.getLogger(BattleService.class);
     private final CharacterRepositoryPort repository;
 
     public BattleService(CharacterRepositoryPort repository) {
@@ -16,26 +22,79 @@ public class BattleService implements BattleUseCase {
 
     @Override
     public BattleResultResponse executeBattle(BattleCommand command) {
-        Character attacker = repository.findById(command.getAttackerId())
+        Character c1 = repository.findById(command.getAttackerId())
             .orElseThrow(() -> new IllegalArgumentException("Attacker not found"));
-
-        Character defender = repository.findById(command.getDefenderId())
+        Character c2 = repository.findById(command.getDefenderId())
             .orElseThrow(() -> new IllegalArgumentException("Defender not found"));
 
-        // Apply damage with battle modifiers
-        double finalDamage = command.getDamage() * attacker.getJob().getBattleModifiers().getDamageMultiplier();
-        finalDamage = finalDamage / defender.getJob().getBattleModifiers().getDefensiveMultiplier();
+        logger.info("Starting battle: attacker={}, defender={}", c1.getName(), c2.getName());
+        List<String> log = new ArrayList<>();
+        log.add(String.format(
+            "Battle between %s (%s) - %d HP and %s (%s) - %d HP begins!",
+            c1.getName(), c1.getJob(), c1.getHealth().getCurrent(),
+            c2.getName(), c2.getJob(), c2.getHealth().getCurrent()
+        ));
 
-        Health newHealth = defender.getHealth().takeDamage((int) finalDamage);
-        defender.setHealth(newHealth);
+        Character attacker = c1;
+        Character defender = c2;
+
+        while (attacker.getHealth().isAlive() && defender.getHealth().isAlive()) {
+            int attackerSpeedRoll;
+            int defenderSpeedRoll;
+            do {
+                attackerSpeedRoll = attacker.rollSpeed();
+                defenderSpeedRoll = defender.rollSpeed();
+            } while (attackerSpeedRoll == defenderSpeedRoll);
+
+            if (defenderSpeedRoll > attackerSpeedRoll) {
+                Character tmp = attacker;
+                attacker = defender;
+                defender = tmp;
+                int tmpSpeed = attackerSpeedRoll;
+                attackerSpeedRoll = defenderSpeedRoll;
+                defenderSpeedRoll = tmpSpeed;
+            }
+
+            log.add(String.format(
+                "%s %d speed was faster than %s %d speed and will begin this round.",
+                attacker.getName(), attackerSpeedRoll, defender.getName(), defenderSpeedRoll
+            ));
+
+            // Attacker turn
+            int damage = attacker.rollAttackDamage();
+            Health newHealth = defender.getHealth().takeDamage(damage);
+            defender.setHealth(newHealth);
+            log.add(String.format("%s attacks %s for %d, %s has %d HP remaining.",
+                attacker.getName(), defender.getName(), damage, defender.getName(), newHealth.getCurrent()));
+            if (!defender.isAlive()) {
+                break;
+            }
+
+            // Defender turn
+            int counterDamage = defender.rollAttackDamage();
+            Health attackerHealth = attacker.getHealth().takeDamage(counterDamage);
+            attacker.setHealth(attackerHealth);
+            log.add(String.format("%s attacks %s for %d, %s has %d HP remaining.",
+                defender.getName(), attacker.getName(), counterDamage, attacker.getName(), attackerHealth.getCurrent()));
+
+            // next round switches roles
+        }
+
+        Character winner = attacker.getHealth().isAlive() ? attacker : defender;
+        Character loser = winner == attacker ? defender : attacker;
+
+        repository.save(attacker);
         repository.save(defender);
 
+        log.add(String.format("%s wins the battle! %s still has %d HP remaining",
+            winner.getName(), winner.getName(), winner.getHealth().getCurrent()));
+        logger.info("Battle finished: winner={}, loser={}, winnerHp={}", winner.getName(), loser.getName(), winner.getHealth().getCurrent());
+
         return new BattleResultResponse(
-            attacker.getName(),
-            defender.getName(),
-            (int) finalDamage,
-            newHealth.getCurrent(),
-            newHealth.isAlive()
+            winner.getName(),
+            loser.getName(),
+            winner.getHealth().getCurrent(),
+            log
         );
     }
 }

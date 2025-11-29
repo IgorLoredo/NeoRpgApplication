@@ -22,16 +22,15 @@ Base path: `/api/v1`
   - Response: 200 OK with wrapper `{ "success": true, "data": { ... } }` or 400/404
 
 - GET /api/v1/characters
-  - Lists characters (simple in-memory pagination)
-  - Query params: `page` (default 0), `pageSize` (default 10)
+  - Lists characters with name, job, and whether they are alive/dead
 
 - DELETE /api/v1/characters/{id}
   - Deletes a character
   - Response: 204 No Content
 
-- POST /api/v1/battles?attackerId={id}&defenderId={id}&damage={int}
-  - Executes a simple battle between characters
-  - Response: 200 OK with `BattleResultResponse` wrapped
+- POST /api/v1/battles?attackerId={id}&defenderId={id}
+  - Executes a battle between two characters using job-based attack/speed modifiers and produces a battle log
+  - Response: 200 OK with winner/loser, remaining HP, and log
 
 ## How to run (PowerShell)
 From the project root on Windows PowerShell:
