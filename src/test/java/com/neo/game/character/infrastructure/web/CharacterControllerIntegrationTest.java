@@ -67,7 +67,7 @@ public class CharacterControllerIntegrationTest {
     @Test
     public void testGetCharacterById() throws Exception {
         // Criar um personagem primeiro
-        String createRequestBody = "{\"name\":\"Legolas\",\"job\":\"ROGUE\"}";
+        String createRequestBody = "{\"name\":\"Legolas\",\"job\":\"THIEF\"}";
         
     String response = mockMvc.perform(post("/api/v1/characters")
         .contentType(MediaType.APPLICATION_JSON)

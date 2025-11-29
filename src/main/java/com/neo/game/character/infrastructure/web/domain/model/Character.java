@@ -7,6 +7,7 @@ import com.neo.game.character.infrastructure.web.domain.model.valueobjects.Stats
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Character {
     private final CharacterId id;
@@ -33,7 +34,7 @@ public class Character {
 
     public static Character create(String name, Job job) {
         CharacterId id = CharacterId.generate();
-        Stats baseStats = job.getBaseStats();
+        Stats baseStats = new Stats(job.getStrength(), job.getDexterity(), job.getIntelligence());
         Health health = new Health(job.getBaseHealth(), job.getBaseHealth());
         return new Character(id, name, 1, job, baseStats, health, 0);
     }
@@ -95,6 +96,44 @@ public class Character {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public boolean isAlive() {
+        return health.isAlive();
+    }
+
+    public int attackModifier() {
+        switch (job) {
+            case WARRIOR:
+                return (int) Math.round(0.8 * stats.getStrength() + 0.2 * stats.getDexterity());
+            case THIEF:
+                return (int) Math.round(0.25 * stats.getStrength() + 1.0 * stats.getDexterity() + 0.25 * stats.getIntelligence());
+            case MAGE:
+            default:
+                return (int) Math.round(0.2 * stats.getStrength() + 0.2 * stats.getDexterity() + 1.2 * stats.getIntelligence());
+        }
+    }
+
+    public int speedModifier() {
+        switch (job) {
+            case WARRIOR:
+                return (int) Math.round(0.6 * stats.getDexterity() + 0.2 * stats.getIntelligence());
+            case THIEF:
+                return (int) Math.round(0.8 * stats.getDexterity());
+            case MAGE:
+            default:
+                return (int) Math.round(0.4 * stats.getDexterity() + 0.1 * stats.getStrength());
+        }
+    }
+
+    public int rollAttackDamage() {
+        int modifier = Math.max(0, attackModifier());
+        return ThreadLocalRandom.current().nextInt(modifier + 1);
+    }
+
+    public int rollSpeed() {
+        int modifier = Math.max(0, speedModifier());
+        return ThreadLocalRandom.current().nextInt(modifier + 1);
     }
 
     @Override

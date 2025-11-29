@@ -3,9 +3,11 @@ package com.neo.game.character.infrastructure.web.dto;
 import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public class CreateCharacterRequest {
     @NotBlank(message = "Character name cannot be blank")
+    @Pattern(regexp = "^[A-Za-z_]{4,15}$", message = "Name must be 4-15 chars, letters or underscores only")
     private String name;
 
     @NotNull(message = "Job cannot be null")
