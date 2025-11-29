@@ -35,8 +35,8 @@ public class CharacterController {
 
     @PostMapping
     @Operation(
-        summary = "Cria um novo personagem",
-        description = "Cria um personagem de RPG com nome e job. Retorna o personagem criado.",
+        summary = "Create a new character",
+        description = "Creates an RPG character with name and job. Returns the created character.",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(
@@ -46,9 +46,9 @@ public class CharacterController {
         )
     )
     @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Personagem criado com sucesso",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Character created successfully",
             content = @Content(schema = @Schema(implementation = CharacterWebResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Requisicao invalida ou dados incorretos",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request or bad data",
             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     public ResponseEntity<ApiResponse<CharacterWebResponse>> create(@Valid @RequestBody CreateCharacterRequest request) {
@@ -64,7 +64,7 @@ public class CharacterController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista personagens", description = "Lista todos os personagens com nome, job e status (vivo/morto).")
+    @Operation(summary = "List characters", description = "Lists all characters with name, job, and alive/dead status.")
     public ResponseEntity<ApiResponse<CharacterListResponse>> list() {
         CharacterListResponse list = characterUseCase.listCharacters();
         return ResponseEntity.ok(ApiResponse.success(list));
@@ -72,16 +72,16 @@ public class CharacterController {
 
     @GetMapping("/{id}")
     @Operation(
-        summary = "Busca personagem por ID",
-        description = "Retorna os dados de um personagem pelo seu identificador unico.",
+        summary = "Get character by ID",
+        description = "Returns a character by its identifier.",
         parameters = {
-            @Parameter(name = "id", description = "ID do personagem", example = "b1a7e2c0-1234-4a5b-8c2d-1a2b3c4d5e6f")
+            @Parameter(name = "id", description = "Character ID", example = "b1a7e2c0-1234-4a5b-8c2d-1a2b3c4d5e6f")
         }
     )
     @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Personagem encontrado",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Character found",
             content = @Content(schema = @Schema(implementation = CharacterWebResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "ID invalido ou personagem nao encontrado",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID or character not found",
             content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     public ResponseEntity<ApiResponse<CharacterWebResponse>> getById(@PathVariable String id) {

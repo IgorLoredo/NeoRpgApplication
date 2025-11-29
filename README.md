@@ -1,119 +1,65 @@
 # Game Character API (NeoRpgApplication)
 
-REST API to manage RPG characters. The project is structured following Clean Architecture principles (domain, application, infrastructure, shared).
+Backend API for the Neo take-home assignment: manage RPG characters (create/list/detail) and run battles.
 
 ## Overview
 - Language: Java 21
 - Framework: Spring Boot
-- Architecture: Clean Architecture (layers: domain, application, infrastructure, shared)
-- Persistence: In-memory (currently) — `InMemoryCharacterRepository`
-- Default port (dev): 8081 (see `src/main/resources/application.yml`)
+- Architecture: Clean Architecture (domain, application, infrastructure, shared)
+- Persistence: In-memory only (`InMemoryCharacterRepository`)
+- Default port: 8081 (see `src/main/resources/application.yml`)
+- Health/metrics: `/actuator/health`, `/actuator/health/liveness`, `/actuator/health/readiness`, `/actuator/metrics`
 
-## Main endpoints
-Base path: `/api/v1`
+## Requirements coverage
+- Jobs: `WARRIOR`, `THIEF`, `MAGE` with correct base HP/stats and attack/speed modifiers from the spec.
+- Name validation: 4–15 characters, letters or underscore only.
+- Battle algorithm: speed roll per round, higher starts; on tie reroll. Damage roll per turn, HP cannot go below 0. Battle ends when one dies; log includes speed rolls, damage, and winner with remaining HP. HP persists after battle.
+- State in memory (no database).
+- Tests: unit (domain, services, repo) and integration (controllers/battle).
 
-- POST /api/v1/characters
-  - Creates a character
-  - Body: JSON { "name": "string", "job": "WARRIOR|ROGUE|MAGE|PALADIN" }
-  - Response: 201 Created with wrapper `{ "success": true, "data": { ... } }`
-
-- GET /api/v1/characters/{id}
-  - Retrieves a character by id
-  - Response: 200 OK with wrapper `{ "success": true, "data": { ... } }` or 400/404
-
-- GET /api/v1/characters
-  - Lists characters with name, job, and whether they are alive/dead
-
-- DELETE /api/v1/characters/{id}
-  - Deletes a character
-  - Response: 204 No Content
-
-- POST /api/v1/battles?attackerId={id}&defenderId={id}
-  - Executes a battle between two characters using job-based attack/speed modifiers and produces a battle log
-  - Response: 200 OK with winner/loser, remaining HP, and log
+## Endpoints (base `/api/v1`)
+- `POST /characters` — create character. Body: `{"name":"Aragorn","job":"WARRIOR|THIEF|MAGE"}`. Response: 201 with wrapped payload.
+- `GET /characters/{id}` — character detail with stats/modifiers/HP.
+- `GET /characters` — list characters (name, job, alive/dead).
+- `POST /battles?attackerId={id}&defenderId={id}` — run battle; returns winner/loser, remaining HP, and log.
 
 ## How to run (PowerShell)
-From the project root on Windows PowerShell:
-
 ```powershell
 # Compile
-& '.\mvnw.cmd' clean compile
+.\mvnw.cmd clean compile
 
 # Run tests
-& '.\mvnw.cmd' test
+.\mvnw.cmd test
 
-# Run the application
-& '.\mvnw.cmd' spring-boot:run
+# Run the app
+.\mvnw.cmd spring-boot:run
 ```
+The app starts on port 8081 (override with `--server.port=PORT`).
 
-The application will start on the port configured in `application.yml` (default 8081). If the port is in use, change `application.yml` or pass `--server.port=PORT` as an argument.
+## Swagger / OpenAPI
+- UI: `http://localhost:8081/swagger-ui/index.html`
+- JSON: `http://localhost:8081/v3/api-docs`
 
-## Request examples
-Create character (curl):
+## Architecture
+- **Domain**: entities/value objects (Character, Job, CharacterId, Health, Stats).
+    - Located under `src/main/java/com/neo/game/domain`.
+- **Application**: use cases (services), DTOs (commands/queries), mappers.
+- **Infrastructure**: REST controllers, in-memory repository, configuration, resilience (retry/rate limit), actuator.
+- **Shared**: exception handling, random provider, logging utilities.
 
+## Resilience & SRE
+- Retries on character/battle services (Resilience4j).
+- Rate limiting on battle endpoint.
+- Metrics: counters for creations/battles; timers for battle execution; Actuator health/readiness/liveness.
+
+## Examples
+Create character:
 ```bash
 curl -X POST "http://localhost:8081/api/v1/characters" \
   -H "Content-Type: application/json" \
   -d '{"name":"Aragorn","job":"WARRIOR"}'
 ```
-
-Create character (PowerShell - Invoke-RestMethod):
-
-```powershell
-$body = @{ name = 'Aragorn'; job = 'WARRIOR' } | ConvertTo-Json
-Invoke-RestMethod -Uri 'http://localhost:8081/api/v1/characters' -Method Post -ContentType 'application/json' -Body $body
-```
-
-Get character:
-
+Battle:
 ```bash
-curl http://localhost:8081/api/v1/characters/{id}
+curl -X POST "http://localhost:8081/api/v1/battles?attackerId={attackerUuid}&defenderId={defenderUuid}"
 ```
-
-Execute a battle (example):
-
-```bash
-curl -X POST "http://localhost:8081/api/v1/battles?attackerId={attackerUuid}&defenderId={defenderUuid}&damage=20"
-```
-
-## Swagger / OpenAPI
-After starting the application, the Swagger UI (springdoc) should be available at:
-
-- Swagger UI: `http://localhost:8081/swagger-ui/index.html` (or `.../swagger-ui.html`)
-- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
-
-> Note: If `springdoc` is installed and the application starts, those endpoints will show the automatic API documentation of the controllers.
-
-## Tests
-- Unit and integration tests are in `src/test/java`.
-- Run tests with (PowerShell):
-
-```powershell
-& '.\mvnw.cmd' test
-```
-
-## Architecture and next steps
-- The `domain` layer contains entities and value objects (Character, CharacterId, Health, Stats, etc.).
-- The `application` layer contains use cases (services) and DTOs (commands/queries).
-- The `infrastructure` layer contains REST controllers, the in-memory repository and bean configuration.
-- The `shared` layer contains exception handling and tracing/MDC filters.
-
-Possible improvements:
-- Replace `InMemoryCharacterRepository` with JPA persistence (H2/Postgres) and `JpaCharacterRepository`.
-- Add database migrations (Flyway/Liquibase).
-- Add authentication/authorization (JWT/OAuth2).
-- Add more integration tests and increase coverage.
-- Improve pagination and filtering in the listing endpoint.
-
-## Notes
-- `application.yml` configures port `8081` and serialization options.
-- Tracing and logging: `TraceIdFilter` and `MDCFilter` add trace id support in logs.
-
----
-
-If you want, I can:
-- Run the build and tests now to validate everything (`run`).
-- Add a Postman collection example (`postman`).
-- Convert the in-memory repository to JPA/H2 with an `@Entity` implementation (`jpa`).
-
-README updated: `README.md`
