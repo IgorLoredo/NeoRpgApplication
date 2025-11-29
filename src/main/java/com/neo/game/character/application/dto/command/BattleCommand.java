@@ -5,15 +5,13 @@ import com.neo.game.character.infrastructure.web.domain.model.valueobjects.Chara
 public class BattleCommand {
     private CharacterId attackerId;
     private CharacterId defenderId;
-    private int damage;
 
     public BattleCommand() {
     }
 
-    public BattleCommand(CharacterId attackerId, CharacterId defenderId, int damage) {
+    public BattleCommand(CharacterId attackerId, CharacterId defenderId) {
         this.attackerId = attackerId;
         this.defenderId = defenderId;
-        this.damage = damage;
     }
 
     public CharacterId getAttackerId() {
@@ -30,13 +28,5 @@ public class BattleCommand {
 
     public void setDefenderId(CharacterId defenderId) {
         this.defenderId = defenderId;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
     }
 }

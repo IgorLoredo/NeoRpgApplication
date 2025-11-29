@@ -1,37 +1,33 @@
 package com.neo.game.character.application.dto.query;
 
+import java.util.List;
+
 public class BattleResultResponse {
-    private String attackerName;
-    private String defenderName;
-    private int damageDealt;
-    private int defenderHealthRemaining;
-    private boolean defenderAlive;
+    private final String winnerName;
+    private final String loserName;
+    private final int winnerRemainingHp;
+    private final List<String> log;
 
-    public BattleResultResponse(String attackerName, String defenderName, int damageDealt, int defenderHealthRemaining, boolean defenderAlive) {
-        this.attackerName = attackerName;
-        this.defenderName = defenderName;
-        this.damageDealt = damageDealt;
-        this.defenderHealthRemaining = defenderHealthRemaining;
-        this.defenderAlive = defenderAlive;
+    public BattleResultResponse(String winnerName, String loserName, int winnerRemainingHp, List<String> log) {
+        this.winnerName = winnerName;
+        this.loserName = loserName;
+        this.winnerRemainingHp = winnerRemainingHp;
+        this.log = log;
     }
 
-    public String getAttackerName() {
-        return attackerName;
+    public String getWinnerName() {
+        return winnerName;
     }
 
-    public String getDefenderName() {
-        return defenderName;
+    public String getLoserName() {
+        return loserName;
     }
 
-    public int getDamageDealt() {
-        return damageDealt;
+    public int getWinnerRemainingHp() {
+        return winnerRemainingHp;
     }
 
-    public int getDefenderHealthRemaining() {
-        return defenderHealthRemaining;
-    }
-
-    public boolean isDefenderAlive() {
-        return defenderAlive;
+    public List<String> getLog() {
+        return log;
     }
 }
