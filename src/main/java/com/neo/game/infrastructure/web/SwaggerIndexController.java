@@ -32,37 +32,6 @@ public class SwaggerIndexController {
         this.handlerMapping = handlerMapping;
     }
 
-    @GetMapping("/index")
-    public List<RouteInfo> index() {
-        List<RouteInfo> routes = new ArrayList<>();
-
-        Map<RequestMappingInfo, HandlerMethod> map = handlerMapping.getHandlerMethods();
-
-        for (Map.Entry<RequestMappingInfo, HandlerMethod> e : map.entrySet()) {
-            RequestMappingInfo info = e.getKey();
-            HandlerMethod hm = e.getValue();
-
-            Set<String> patterns = info.getPatternValues();
-            Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
-
-            String controller = hm.getBeanType().getSimpleName();
-            String handlerMethod = hm.getMethod().getName();
-
-            for (String pattern : patterns) {
-                // Skip framework and self endpoints we don't usually want in the index
-                if (pattern.startsWith("/actuator") || pattern.startsWith("/error") || pattern.startsWith("/v3/api-docs") || pattern.startsWith("/swagger")) {
-                    continue;
-                }
-
-                String httpMethods = methods.isEmpty() ? "ALL" : methods.stream().map(Enum::name).collect(Collectors.joining(","));
-                routes.add(new RouteInfo(httpMethods, pattern, controller, handlerMethod));
-            }
-        }
-
-        routes.sort(Comparator.comparing(r -> r.path));
-        return routes;
-    }
-
     public static class RouteInfo {
         public String methods;
         public String path;

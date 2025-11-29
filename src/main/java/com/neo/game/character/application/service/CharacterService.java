@@ -9,6 +9,7 @@ import com.neo.game.character.application.ports.in.CharacterUseCase;
 import com.neo.game.character.application.ports.out.CharacterRepositoryPort;
 import com.neo.game.domain.model.Character;
 import com.neo.game.domain.model.valueobjects.CharacterId;
+import com.neo.game.shared.exception.NotFoundException;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -55,7 +56,7 @@ public class CharacterService implements CharacterUseCase {
         Character character = repository.findById(characterId)
             .orElseThrow(() -> {
                 logger.error("Character not found: id={}", id);
-                return new IllegalArgumentException("Character not found with id: " + id);
+                return new NotFoundException("Character not found with id: " + id);
             });
         logger.debug("Character found: id={}, job={}, hp={}", character.getId(), character.getJob(), character.getHealth());
         return CharacterMapper.toResponse(character);

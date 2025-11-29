@@ -7,6 +7,7 @@ import com.neo.game.character.application.ports.out.CharacterRepositoryPort;
 import com.neo.game.domain.model.Character;
 import com.neo.game.domain.model.valueobjects.Health;
 import com.neo.game.shared.random.RandomProvider;
+import com.neo.game.shared.exception.NotFoundException;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -39,9 +40,9 @@ public class BattleService implements BattleUseCase {
 
     private BattleResultResponse runBattle(BattleCommand command) {
         Character c1 = repository.findById(command.getAttackerId())
-            .orElseThrow(() -> new IllegalArgumentException("Attacker not found"));
+            .orElseThrow(() -> new NotFoundException("Attacker not found"));
         Character c2 = repository.findById(command.getDefenderId())
-            .orElseThrow(() -> new IllegalArgumentException("Defender not found"));
+            .orElseThrow(() -> new NotFoundException("Defender not found"));
 
         logger.info("Starting battle: attacker={}, defender={}", c1.getName(), c2.getName());
         List<String> log = new ArrayList<>();
