@@ -1,6 +1,6 @@
 package com.neo.game.character.application.dto.query;
 
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import com.neo.game.domain.model.enums.Job;
 
 public class CharacterSummaryResponse {
     private final String id;

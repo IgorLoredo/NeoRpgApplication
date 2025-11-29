@@ -7,12 +7,16 @@ public class BattleResultResponse {
     private final String loserName;
     private final int winnerRemainingHp;
     private final List<String> log;
+    private String message;
+    private int statusCode;
 
-    public BattleResultResponse(String winnerName, String loserName, int winnerRemainingHp, List<String> log) {
+    public BattleResultResponse(String winnerName, String loserName, int winnerRemainingHp, List<String> log, String message, int statusCode) {
         this.winnerName = winnerName;
         this.loserName = loserName;
         this.winnerRemainingHp = winnerRemainingHp;
         this.log = log;
+        this.message = message;
+        this.statusCode = statusCode;
     }
 
     public String getWinnerName() {
@@ -29,5 +33,13 @@ public class BattleResultResponse {
 
     public List<String> getLog() {
         return log;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
     }
 }

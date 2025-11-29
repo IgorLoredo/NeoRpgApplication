@@ -1,8 +1,8 @@
 package com.neo.game.character.application.mapper;
 
 import com.neo.game.character.application.dto.query.CharacterResponse;
-import com.neo.game.character.infrastructure.web.domain.model.Character;
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.Stats;
+import com.neo.game.domain.model.Character;
+import com.neo.game.domain.model.valueobjects.Stats;
 
 public class CharacterMapper {
     public static CharacterResponse toResponse(Character character) {

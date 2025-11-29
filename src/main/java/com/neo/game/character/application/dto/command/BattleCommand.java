@@ -1,6 +1,6 @@
 package com.neo.game.character.application.dto.command;
 
-import com.neo.game.character.infrastructure.web.domain.model.valueobjects.CharacterId;
+import com.neo.game.domain.model.valueobjects.CharacterId;
 
 public class BattleCommand {
     private CharacterId attackerId;

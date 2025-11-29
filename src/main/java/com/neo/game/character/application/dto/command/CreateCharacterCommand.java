@@ -1,6 +1,6 @@
 package com.neo.game.character.application.dto.command;
 
-import com.neo.game.character.infrastructure.web.domain.model.enums.Job;
+import com.neo.game.domain.model.enums.Job;
 
 public class CreateCharacterCommand {
     private String name;
