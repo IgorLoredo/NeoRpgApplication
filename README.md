@@ -63,3 +63,36 @@ Battle:
 ```bash
 curl -X POST "http://localhost:8081/api/v1/battles?attackerId={attackerUuid}&defenderId={defenderUuid}"
 ```
+
+### Steps to run a battle session
+1) Start the app: `.\mvnw.cmd spring-boot:run` (default port 8081).
+2) Create two characters (e.g., `WARRIOR` and `MAGE`) via `POST /api/v1/characters`.
+3) Copy their returned `id` values.
+4) Call `POST /api/v1/battles?attackerId={idA}&defenderId={idB}`.
+5) Inspect the response log to see speed rolls, damage per hit, and the winner with remaining HP.
+
+### Battle flow (visual)
+```
+[Round N]
+  Hero (speed roll) ----\
+                         > higher speed starts
+  Mage (speed roll) ----/
+
+Turn 1: Fastest attacks
+  - roll damage (0..attack modifier)
+  - apply damage to defender HP (min 0)
+  - log: "Hero attacks Mage for X, Mage has Y HP remaining"
+  - if defender HP == 0 -> battle ends
+
+Turn 2: Defender (if alive) attacks back
+  - roll damage (0..attack modifier)
+  - apply damage to attacker HP
+  - log: "Mage attacks Hero for X, Hero has Y HP remaining"
+
+Repeat next round until one HP reaches 0.
+
+Result:
+  - Winner name, loser name
+  - Winner remaining HP
+  - Full battle log
+```
